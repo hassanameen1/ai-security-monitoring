@@ -9,7 +9,7 @@ This file gives Claude Code full context for this project. Read it at the start 
 **Purpose:** Portfolio project to land an Azure Cloud Security Engineer / AI Security Engineer role. This is the second LinkedIn project after the Defender for Cloud + Sentinel pipeline (Project 4). Together they tell a career story: "I can build cloud security operations AND I can build AI security operations."
 **Status:** Not started — beginning fresh
 **Target completion:** ~12 daily sessions (2-3 hours each)
-**Region:** `uaenorth`
+**Region:** `swedencentral` (uaenorth lacks Azure OpenAI; verified via `az cognitiveservices account list-skus`)
 **Subscription:** Fresh Azure free trial ($200 credit, 30-day window)
 
 ## The Problem This Solves
@@ -102,7 +102,7 @@ Three elements elevate this above a tutorial project:
 - **Response:** Logic Apps (consumption tier)
 - **IaC:** Terraform with `azurerm` provider
 - **Source control:** GitHub (public repo)
-- **Region:** `uaenorth`
+- **Region:** `swedencentral`
 - **OS:** macOS / zsh (Hassan's environment)
 
 **Cost estimate:** $10-20 total across the entire project. Azure OpenAI GPT-4o-mini is ~$0.15/1M input tokens. AI Search free tier. Content Safety free tier. App Service free/B1. Everything else same as Project 4.
@@ -174,7 +174,7 @@ ai-security-monitoring/
 
 **Day 1 — Azure setup + chatbot skeleton**
 - Create fresh Azure free trial subscription
-- Deploy resource group `rg-ai-security-prod` in `uaenorth`
+- Deploy resource group `rg-ai-security-prod` in `swedencentral`
 - Deploy Azure OpenAI, deploy GPT-4o-mini model
 - Deploy Azure AI Search (free tier)
 - Write bare FastAPI chatbot: accepts a prompt, calls Azure OpenAI, returns response
@@ -457,9 +457,7 @@ az monitor log-analytics query -w <workspace-id> --analytics-query "AIInteractio
 
 ## Open Questions / Decisions Pending
 
-- [ ] Confirm Azure OpenAI availability in `uaenorth` (fallback: `swedencentral`)
-- [ ] Confirm Azure AI Content Safety availability in `uaenorth`
-- [ ] Confirm Azure AI Search free tier availability in `uaenorth`
+- [x] Region resolved: `swedencentral` (uaenorth lacks Azure OpenAI; Sweden has all three services)
 - [ ] GitHub repo name: suggest `ai-security-monitoring` or `ai-security-sentinel`
 - [ ] App deployment: Azure App Service vs Azure Container Apps (recommend App Service for simplicity)
 - [ ] Telemetry ingestion: Application Insights vs direct LAW Data Collector API
