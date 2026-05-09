@@ -20,3 +20,11 @@ resource "azurerm_resource_group" "main" {
   location = var.location
   tags     = local.tags
 }
+
+module "openai" {
+  source              = "./modules/openai"
+  name                = var.openai_name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.main.name
+  tags                = local.tags
+}

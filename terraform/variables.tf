@@ -14,3 +14,9 @@ variable "resource_group_name" {
   type        = string
   default     = "rg-ai-security-prod"
 }
+
+variable "openai_name" {
+  description = "openai resource name (globally unique)"
+  type        = string
+  default     = "ai-open-prod"
+}
