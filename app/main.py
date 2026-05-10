@@ -3,7 +3,9 @@ import os
 
 import openai
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
+from fastapi.responses import RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from openai import AsyncAzureOpenAI
 from pydantic import BaseModel
 
@@ -40,14 +42,26 @@ SYSTEM_PROMPT = (
 )
 
 
+app.mount("/ui", StaticFiles(directory="static", html=True), name="ui")
+
+
+@app.get("/")
+def root():
+    return RedirectResponse(url="/ui/chat.html")
+
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
 
 @app.post("/chat", response_model=ChatResponse)
-async def chat(req: ChatRequest) -> ChatResponse:
-    docs = retrieve(req.prompt)
+async def chat(
+    req: ChatRequest,
+    x_user_groups: str | None = Header(default=None),
+) -> ChatResponse:
+    groups = [g.strip() for g in x_user_groups.split(",")] if x_user_groups else []
+    docs = retrieve(req.prompt, groups=groups)
     context = format_context(docs)
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},

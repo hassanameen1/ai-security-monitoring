@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Al-Riyadh Holdings — HR Assistant</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-2: #1c232c;
+    --border: #30363d;
+    --border-strong: #424a53;
+    --text: #e6edf3;
+    --text-muted: #8b949e;
+    --text-faint: #6e7681;
+    --accent: #58a6ff;
+    --accent-hover: #79b8ff;
+    --success: #3fb950;
+    --warn: #d29922;
+    --danger: #f85149;
+    --chip-public-bg: rgba(63, 185, 80, 0.12);
+    --chip-public-fg: #3fb950;
+    --chip-internal-bg: rgba(88, 166, 255, 0.12);
+    --chip-internal-fg: #58a6ff;
+    --chip-confidential-bg: rgba(248, 81, 73, 0.12);
+    --chip-confidential-fg: #f85149;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "SF Pro Text", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%);
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    color: #fff;
+    font-size: 14px;
+    letter-spacing: -0.5px;
+  }
+
+  .brand-text { display: flex; flex-direction: column; line-height: 1.2; }
+  .brand-title { font-weight: 600; font-size: 15px; }
+  .brand-subtitle { font-size: 12px; color: var(--text-muted); }
+
+  /* Identity panel */
+  .identity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .identity-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 500;
+  }
+
+  .identity-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--surface-2);
+    color: var(--text);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 8px 32px 8px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16' fill='%238b949e'><path d='M4.427 7.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396A.25.25 0 0011.396 7H4.604a.25.25 0 00-.177.427z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+
+  .identity-select:hover { border-color: var(--accent); }
+  .identity-select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2); }
+
+  /* Identity badge — visual reinforcement of selected role */
+  .identity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-variant: small-caps;
+    letter-spacing: 0.5px;
+  }
+
+  .identity-badge .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-faint);
+  }
+
+  .identity-badge.role-anon .dot { background: var(--text-faint); }
+  .identity-badge.role-hr .dot { background: var(--danger); }
+  .identity-badge.role-eng .dot { background: var(--accent); }
+  .identity-badge.role-all .dot { background: var(--success); }
+
+  /* Sub-header / status strip */
+  .status-strip {
+    padding: 10px 24px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .status-strip code {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+    font-size: 11px;
+    color: var(--text-faint);
+    background: var(--surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+
+  /* Messages */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .messages::-webkit-scrollbar { width: 10px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+  .messages::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+  .message {
+    display: flex;
+    gap: 12px;
+    max-width: 100%;
+    animation: msg-in 220ms ease-out;
+  }
+
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    font-size: 12px;
+  }
+
+  .avatar.user { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted); }
+  .avatar.bot { background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%); color: #fff; }
+
+  .bubble {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .bubble-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .bubble-meta .role { font-weight: 600; color: var(--text); }
+  .bubble-meta .time { font-size: 11px; color: var(--text-faint); }
+
+  .bubble-content {
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .bubble-content.user-content {
+    background: var(--surface-2);
+    border-color: var(--border);
+  }
+
+  .bubble-content.error {
+    border-color: var(--danger);
+    background: rgba(248, 81, 73, 0.06);
+    color: #ffa198;
+  }
+
+  /* Source chips */
+  .sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sources-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    align-self: center;
+    margin-right: 4px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace;
+  }
+
+  .chip.public { background: var(--chip-public-bg); color: var(--chip-public-fg); }
+  .chip.internal { background: var(--chip-internal-bg); color: var(--chip-internal-fg); }
+  .chip.confidential { background: var(--chip-confidential-bg); color: var(--chip-confidential-fg); }
+  .chip.unknown { background: var(--surface-2); color: var(--text-muted); }
+
+  .chip .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* No-sources note (filter blocked everything) */
+  .filter-block-note {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--warn);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* Empty state */
+  .empty-state {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: var(--text-muted);
+    padding: 48px 24px;
+  }
+
+  .empty-state-mark {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%);
+    margin: 0 auto 16px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .empty-state h2 { margin: 0 0 8px; font-size: 18px; color: var(--text); font-weight: 600; }
+  .empty-state p { margin: 0 0 20px; max-width: 480px; }
+
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    max-width: 640px;
+  }
+
+  .example-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .example-btn:hover { border-color: var(--accent); background: var(--surface-2); }
+
+  /* Loading dots */
+  .typing {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px 0;
+  }
+
+  .typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    animation: typing 1.2s infinite ease-in-out both;
+  }
+
+  .typing span:nth-child(1) { animation-delay: -0.32s; }
+  .typing span:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes typing {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Composer */
+  .composer {
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .composer-form {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .composer-form:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.15);
+  }
+
+  .composer-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    resize: none;
+    max-height: 160px;
+    min-height: 22px;
+    padding: 4px 0;
+  }
+
+  .composer-input::placeholder { color: var(--text-faint); }
+
+  .send-btn {
+    background: var(--accent);
+    color: #0d1117;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.05s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover:not(:disabled) { background: var(--accent-hover); }
+  .send-btn:active:not(:disabled) { transform: translateY(1px); }
+  .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .composer-hint {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-faint);
+    text-align: center;
+  }
+
+  .composer-hint kbd {
+    display: inline-block;
+    padding: 1px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div class="brand-text">
+          <span class="brand-title">Al-Riyadh Holdings — HR Assistant</span>
+          <span class="brand-subtitle">RAG-powered chatbot · Zero Trust access control</span>
+        </div>
+      </div>
+      <div class="identity">
+        <span class="identity-label">Signed in as</span>
+        <select id="identity-select" class="identity-select">
+          <option value="anonymous">Anonymous (no header)</option>
+          <option value="all-employees">All Employees (sg-all-employees)</option>
+          <option value="hr">HR (sg-hr)</option>
+          <option value="engineering">Engineering (sg-engineering)</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="status-strip">
+      <span>
+        Active filter: <span id="active-filter-badge"><span class="identity-badge role-anon"><span class="dot"></span>anonymous</span></span>
+      </span>
+    </div>
+
+    <main id="messages" class="messages">
+      <div id="empty-state" class="empty-state">
+        <div class="empty-state-mark">A</div>
+        <h2>Ask anything about Al-Riyadh Holdings</h2>
+        <p>The assistant retrieves from a classified knowledge base. Documents you're not authorized to read are filtered out server-side, before the model sees them.</p>
+        <div class="examples">
+          <button class="example-btn" data-prompt="What is the salary band for a senior engineer (L4)?">Salary band for L4</button>
+          <button class="example-btn" data-prompt="What is the parental leave policy?">Parental leave</button>
+          <button class="example-btn" data-prompt="Who leads the security team?">Security team lead</button>
+          <button class="example-btn" data-prompt="Tell me about Project Alpha">Project Alpha</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="composer">
+      <form id="composer-form" class="composer-form">
+        <textarea id="prompt-input" class="composer-input" rows="1" placeholder="Ask a question…" autocomplete="off"></textarea>
+        <button id="send-btn" type="submit" class="send-btn">Send</button>
+      </form>
+      <div class="composer-hint"><kbd>Enter</kbd> to send · <kbd>Shift</kbd>+<kbd>Enter</kbd> for newline</div>
+    </div>
+  </div>
+
+<script>
+  // Hardcoded GUIDs from `terraform output` — would be injected from server in a real app.
+  const IDENTITY_MAP = {
+    "anonymous":      { groups: null,                                                  badge: { role: "anon", label: "anonymous" } },
+    "all-employees":  { groups: ["152f5b2f-6137-4438-98f7-454a2b231d6f"],               badge: { role: "all",  label: "all-employees" } },
+    "hr":             { groups: ["abb40fd0-55a5-4746-b263-8f1bf9322dcd"],               badge: { role: "hr",   label: "hr" } },
+    "engineering":    { groups: ["7c16e5ba-d873-43a2-8437-e52f70bd20b5"],               badge: { role: "eng",  label: "engineering" } },
+  };
+
+  // Doc classifications (would normally come from a metadata endpoint)
+  const DOC_CLASS = {
+    "kb-001": "public",
+    "kb-002": "internal",
+    "kb-003": "confidential",
+    "kb-004": "confidential",
+  };
+
+  const $messages       = document.getElementById("messages");
+  const $emptyState     = document.getElementById("empty-state");
+  const $form           = document.getElementById("composer-form");
+  const $input          = document.getElementById("prompt-input");
+  const $send           = document.getElementById("send-btn");
+  const $identitySelect = document.getElementById("identity-select");
+  const $filterBadge    = document.getElementById("active-filter-badge");
+
+  function currentIdentity() {
+    return IDENTITY_MAP[$identitySelect.value];
+  }
+
+  function updateIdentityVisuals() {
+    const id = currentIdentity();
+    const badgeEl = document.createElement("span");
+    badgeEl.className = `identity-badge role-${id.badge.role}`;
+    badgeEl.innerHTML = `<span class="dot"></span>${id.badge.label}`;
+    $filterBadge.innerHTML = "";
+    $filterBadge.appendChild(badgeEl);
+  }
+
+  $identitySelect.addEventListener("change", updateIdentityVisuals);
+
+  // Auto-grow textarea
+  $input.addEventListener("input", () => {
+    $input.style.height = "auto";
+    $input.style.height = Math.min($input.scrollHeight, 160) + "px";
+  });
+
+  // Enter to send, Shift+Enter for newline
+  $input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      $form.requestSubmit();
+    }
+  });
+
+  // Example buttons
+  document.querySelectorAll(".example-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $input.value = btn.dataset.prompt;
+      $input.focus();
+      $input.dispatchEvent(new Event("input"));
+    });
+  });
+
+  function timeNow() {
+    return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }
+
+  function chipFor(docId) {
+    const cls = DOC_CLASS[docId] || "unknown";
+    return `<span class="chip ${cls}"><span class="dot"></span>${docId}</span>`;
+  }
+
+  function appendUser(text) {
+    if ($emptyState && $emptyState.parentNode) $emptyState.remove();
+
+    const id = currentIdentity();
+    const msg = document.createElement("div");
+    msg.className = "message";
+    msg.innerHTML = `
+      <div class="avatar user">
+        <span class="identity-badge role-${id.badge.role}" style="border:none;background:transparent;padding:0;font-size:10px;">
+          <span class="dot"></span>
+        </span>
+      </div>
+      <div class="bubble">
+        <div class="bubble-meta">
+          <span class="role">${id.badge.label}</span>
+          <span class="time">${timeNow()}</span>
+        </div>
+        <div class="bubble-content user-content"></div>
+      </div>
+    `;
+    msg.querySelector(".bubble-content").textContent = text;
+    $messages.appendChild(msg);
+    $messages.scrollTop = $messages.scrollHeight;
+  }
+
+  function appendBotPlaceholder() {
+    const msg = document.createElement("div");
+    msg.className = "message";
+    msg.innerHTML = `
+      <div class="avatar bot">A</div>
+      <div class="bubble">
+        <div class="bubble-meta">
+          <span class="role">Assistant</span>
+          <span class="time">${timeNow()}</span>
+        </div>
+        <div class="bubble-content"><div class="typing"><span></span><span></span><span></span></div></div>
+      </div>
+    `;
+    $messages.appendChild(msg);
+    $messages.scrollTop = $messages.scrollHeight;
+    return msg;
+  }
+
+  function fillBot(node, response, sources) {
+    const content = node.querySelector(".bubble-content");
+    content.innerHTML = "";
+    content.textContent = response;
+
+    if (sources && sources.length > 0) {
+      const wrap = document.createElement("div");
+      wrap.className = "sources";
+      wrap.innerHTML = `<span class="sources-label">Sources</span>` + sources.map(chipFor).join("");
+      content.appendChild(wrap);
+    } else {
+      const note = document.createElement("div");
+      note.className = "filter-block-note";
+      note.innerHTML = `⛔ No documents matched the access filter. The model received no context.`;
+      content.appendChild(note);
+    }
+  }
+
+  function fillBotError(node, msg) {
+    const content = node.querySelector(".bubble-content");
+    content.classList.add("error");
+    content.textContent = msg;
+  }
+
+  $form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const text = $input.value.trim();
+    if (!text) return;
+
+    $input.value = "";
+    $input.style.height = "auto";
+    $send.disabled = true;
+
+    appendUser(text);
+    const botNode = appendBotPlaceholder();
+
+    const id = currentIdentity();
+    const headers = { "Content-Type": "application/json" };
+    if (id.groups) headers["X-User-Groups"] = id.groups.join(",");
+
+    try {
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ prompt: text }),
+      });
+      if (!res.ok) {
+        const detail = await res.json().catch(() => ({}));
+        fillBotError(botNode, `Error ${res.status}: ${JSON.stringify(detail)}`);
+      } else {
+        const data = await res.json();
+        fillBot(botNode, data.response, data.sources || []);
+      }
+    } catch (err) {
+      fillBotError(botNode, `Network error: ${err.message}`);
+    } finally {
+      $send.disabled = false;
+      $input.focus();
+      $messages.scrollTop = $messages.scrollHeight;
+    }
+  });
+
+  updateIdentityVisuals();
+  $input.focus();
+</script>
+</body>
+</html>

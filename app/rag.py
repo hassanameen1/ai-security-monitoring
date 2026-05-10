@@ -13,9 +13,9 @@ _client = SearchClient(
 def retrieve(query: str, groups: list[str] | None = None, top: int = 3) -> list[dict]:
     """Return top-k matching docs. If groups is provided, filter by authorized_groups."""
     kwargs = {"search_text": query, "top": top, "select": ["doc_id", "title", "content", "classification"]}
-    if groups:
-        quoted = ",".join(f"'{g}'" for g in groups)
-        kwargs["filter"] = f"authorized_groups/any(g: search.in(g, {quoted}))"
+    if groups is not None:
+        csv = ",".join(groups)
+        kwargs["filter"] = f"authorized_groups/any(g: search.in(g, '{csv}', ','))"
     return [dict(r) for r in _client.search(**kwargs)]
 
 
