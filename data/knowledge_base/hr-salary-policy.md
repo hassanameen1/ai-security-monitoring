@@ -3,7 +3,7 @@ doc_id: kb-003
 title: HR Salary Bands & Compensation Policy
 classification: confidential
 authorized_groups:
-  - sg-hr
+  - abb40fd0-55a5-4746-b263-8f1bf9322dcd  # sg-hr
 ---
 
 # HR Salary Bands & Compensation Policy — CONFIDENTIAL

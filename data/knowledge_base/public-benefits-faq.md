@@ -3,9 +3,9 @@ doc_id: kb-001
 title: Employee Benefits FAQ
 classification: public
 authorized_groups:
-  - sg-all-employees
-  - sg-hr
-  - sg-engineering
+  - 152f5b2f-6137-4438-98f7-454a2b231d6f  # sg-all-employees
+  - abb40fd0-55a5-4746-b263-8f1bf9322dcd  # sg-hr
+  - 7c16e5ba-d873-43a2-8437-e52f70bd20b5  # sg-engineering
 ---
 
 # Employee Benefits FAQ

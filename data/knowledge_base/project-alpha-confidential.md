@@ -3,7 +3,7 @@ doc_id: kb-004
 title: Project Alpha — Confidential Engineering Brief
 classification: confidential
 authorized_groups:
-  - sg-engineering
+  - 7c16e5ba-d873-43a2-8437-e52f70bd20b5  # sg-engineering
 ---
 
 # Project Alpha — CONFIDENTIAL

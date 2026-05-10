@@ -36,3 +36,7 @@ module "search" {
   resource_group_name = azurerm_resource_group.main.name
   tags                = local.tags
 }
+
+module "identity" {
+  source = "./modules/identity"
+}
