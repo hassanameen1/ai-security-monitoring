@@ -9,6 +9,8 @@ from pydantic import BaseModel
 
 load_dotenv()
 
+from rag import format_context, retrieve  # noqa: E402  (import after load_dotenv)
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -29,6 +31,13 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     response: str
+    sources: list[str]
+
+
+SYSTEM_PROMPT = (
+    "You are an HR assistant for Al-Riyadh Holdings. Answer using only the provided context. "
+    "If the context does not contain the answer, say you don't know. Cite sources by doc_id."
+)
 
 
 @app.get("/health")
@@ -38,11 +47,15 @@ def health():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(req: ChatRequest) -> ChatResponse:
+    docs = retrieve(req.prompt)
+    context = format_context(docs)
+    messages = [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": f"Context:\n{context}"},
+        {"role": "user", "content": req.prompt},
+    ]
     try:
-        completion = await client.chat.completions.create(
-            model=DEPLOYMENT,
-            messages=[{"role": "user", "content": req.prompt}],
-        )
+        completion = await client.chat.completions.create(model=DEPLOYMENT, messages=messages)
     except (openai.APIConnectionError, openai.APITimeoutError) as e:
         logger.error("upstream_unavailable: %s", e)
         raise HTTPException(
@@ -55,4 +68,7 @@ async def chat(req: ChatRequest) -> ChatResponse:
             status_code=502,
             detail={"error": "upstream_error", "status": e.status_code},
         )
-    return ChatResponse(response=completion.choices[0].message.content)
+    return ChatResponse(
+        response=completion.choices[0].message.content,
+        sources=[d["doc_id"] for d in docs],
+    )

@@ -28,3 +28,11 @@ module "openai" {
   resource_group_name = azurerm_resource_group.main.name
   tags                = local.tags
 }
+
+module "search" {
+  source              = "./modules/ai-search"
+  name                = var.search_name
+  location            = var.location
+  resource_group_name = azurerm_resource_group.main.name
+  tags                = local.tags
+}

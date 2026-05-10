@@ -20,3 +20,9 @@ variable "openai_name" {
   type        = string
   default     = "ai-open-prod"
 }
+
+variable "search_name" {
+  description = "ai search service name (globally unique)"
+  type        = string
+  default     = "ai-open-search"
+}
