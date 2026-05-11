@@ -509,10 +509,10 @@
 <script>
   // Hardcoded GUIDs from `terraform output` — would be injected from server in a real app.
   const IDENTITY_MAP = {
-    "anonymous":      { groups: null,                                                  badge: { role: "anon", label: "anonymous" } },
-    "all-employees":  { groups: ["152f5b2f-6137-4438-98f7-454a2b231d6f"],               badge: { role: "all",  label: "all-employees" } },
-    "hr":             { groups: ["abb40fd0-55a5-4746-b263-8f1bf9322dcd"],               badge: { role: "hr",   label: "hr" } },
-    "engineering":    { groups: ["7c16e5ba-d873-43a2-8437-e52f70bd20b5"],               badge: { role: "eng",  label: "engineering" } },
+    "anonymous":      { userId: "anonymous",      groups: null,                                                  badge: { role: "anon", label: "anonymous" } },
+    "all-employees":  { userId: "demo-employee",  groups: ["152f5b2f-6137-4438-98f7-454a2b231d6f"],               badge: { role: "all",  label: "all-employees" } },
+    "hr":             { userId: "demo-hr",        groups: ["abb40fd0-55a5-4746-b263-8f1bf9322dcd"],               badge: { role: "hr",   label: "hr" } },
+    "engineering":    { userId: "demo-eng",       groups: ["7c16e5ba-d873-43a2-8437-e52f70bd20b5"],               badge: { role: "eng",  label: "engineering" } },
   };
 
   // Doc classifications (would normally come from a metadata endpoint)
@@ -658,7 +658,7 @@
     const botNode = appendBotPlaceholder();
 
     const id = currentIdentity();
-    const headers = { "Content-Type": "application/json" };
+    const headers = { "Content-Type": "application/json", "X-User-Id": id.userId };
     if (id.groups) headers["X-User-Groups"] = id.groups.join(",");
 
     try {
