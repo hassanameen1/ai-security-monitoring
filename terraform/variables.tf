@@ -26,3 +26,21 @@ variable "search_name" {
   type        = string
   default     = "ai-open-search"
 }
+
+variable "law_name" {
+  description = "log analytics workspace name"
+  type        = string
+  default     = "law-ai-security-prod"
+}
+
+variable "dce_name" {
+  description = "data collection endpoint name"
+  type        = string
+  default     = "dce-ai-security"
+}
+
+variable "dcr_name" {
+  description = "data collection rule name"
+  type        = string
+  default     = "dcr-ai-interactions"
+}

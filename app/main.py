@@ -1,6 +1,9 @@
+import asyncio
 import json
 import logging
 import os
+import time
+from datetime import datetime, timezone
 
 import openai
 from dotenv import load_dotenv
@@ -14,6 +17,7 @@ load_dotenv()
 
 from function_tools import TOOL_REGISTRY, TOOL_SCHEMAS  # noqa: E402
 from rag import format_context, retrieve  # noqa: E402  (import after load_dotenv)
+from telemetry import build_record, log_interaction, new_session_id  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -64,8 +68,14 @@ def health():
 async def chat(
     req: ChatRequest,
     x_user_groups: str | None = Header(default=None),
+    x_user_id: str | None = Header(default=None),
 ) -> ChatResponse:
+    session_id = new_session_id()
+    started = time.monotonic()
+    user_id = x_user_id or "anonymous"
     groups = [g.strip() for g in x_user_groups.split(",")] if x_user_groups else []
+    captured_tool_calls: list[dict] = []
+
     docs = retrieve(req.prompt, groups=groups)
     context = format_context(docs)
     messages = [
@@ -86,6 +96,7 @@ async def chat(
             for call in message.tool_calls:
                 fn = TOOL_REGISTRY[call.function.name]
                 args = json.loads(call.function.arguments)
+                captured_tool_calls.append({"name": call.function.name, "args": args})
                 logger.info("tool_call: %s args=%s", call.function.name, args)
                 result = fn(**args)
                 messages.append({
@@ -106,7 +117,22 @@ async def chat(
             status_code=502,
             detail={"error": "upstream_error", "status": e.status_code},
         )
-    return ChatResponse(
-        response=completion.choices[0].message.content,
+
+    response_text = completion.choices[0].message.content
+    elapsed_ms = int((time.monotonic() - started) * 1000)
+    record = build_record(
+        time_generated=datetime.now(timezone.utc).isoformat(),
+        session_id=session_id,
+        user_id=user_id,
+        user_groups=groups,
+        prompt=req.prompt,
+        response=response_text,
         sources=[d["doc_id"] for d in docs],
+        tool_calls=captured_tool_calls,
+        latency_ms=elapsed_ms,
+        prompt_tokens=completion.usage.prompt_tokens,
+        completion_tokens=completion.usage.completion_tokens,
     )
+    asyncio.create_task(log_interaction(record))
+
+    return ChatResponse(response=response_text, sources=[d["doc_id"] for d in docs])

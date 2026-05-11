@@ -40,3 +40,16 @@ module "search" {
 module "identity" {
   source = "./modules/identity"
 }
+
+data "azurerm_client_config" "current" {}
+
+module "loganalytics" {
+  source              = "./modules/loganalytics"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.main.name
+  workspace_name      = var.law_name
+  dce_name            = var.dce_name
+  dcr_name            = var.dcr_name
+  writer_principal_id = data.azurerm_client_config.current.object_id
+  tags                = local.tags
+}
